@@ -1,0 +1,118 @@
+#!/bin/bash
+
+
+# issue:
+  # when backspace is pressed twice on the field "(popinjay) " all text is deleted
+
+shazam() {
+    echo "shitfuck"
+}
+
+start_bookkeeping() {
+    # write location
+    library="./library.txt"
+
+    trap 'history -a;exit;echo "working"' EXIT
+
+    if [ ! -f "$library" ]; then
+	touch "$library"
+	printf "%b" \
+	       "The file '$(readlink -f $library)' wasn't found; " \
+	       "it has been created.\n\n"
+    fi
+
+    HISTFILE=./.popinjay_history
+
+    if [ ! -f "$HISTFILE" ]; then
+	touch "$HISTFILE"
+    fi
+
+    history -cr $HISTFILE; history
+
+    
+    echo "Entering library data, type exit to leave."
+
+    while true; do
+	input_string="(popinjay) "
+	read -e -p "$input_string" input
+	# Don't ever call him a monkey!
+
+
+	## for each book, make a file containign all needed info. this can be changed latter into one
+	## big file. every time a file is created, store it in a var that can be used in conjuncture
+	## with the edit command. 'get' command will store requested file name into curr. smart
+	## search or manual typing?
+	
+	# use queue to iterate through previous commands using up/down arrows. use left arrow
+	# to clear current line input
+
+	case $input in
+	    'exit')
+		break
+		;;
+	    'new'|'n')
+		echo "making new"
+		history -s ${input}
+		continue
+		;;
+	    'edit')
+		echo "editing"
+		continue
+		;;
+	    'get')
+		echo "getting"
+		continue
+		;;
+	    *)
+		echo "$input"
+		echo "haven't the fucking foggiest"
+		continue
+		;;
+	esac
+    done
+    HISTFILE=~/.bash_history
+    history -cr $HISTFILE
+    echo "Exited library"
+}
+
+start_bookkeeping
+
+	#while true; do
+	#    escape_char=$(printf "\u1b")
+	#    read -rsn1 input
+	#    if [[ $input == $escape_char ]]; then
+	#	read -rsn2 input
+	#    fi
+
+	#    case $input in
+	#	'w')
+	#	    shazam
+	#	    continue
+	#	    ;;
+	#	'[A')
+	#	    if [ $current_command < $max_command ]; then
+	#		echo -n "$input_string"
+	#	    fi
+	#	    
+	#	    read -e -i "${commands[$current_command]}" input
+	#	    current_command=$((current_command-1))
+
+	#	    if [ $current_command < 0 ]; then
+	#	        current_command=0
+	#	    fi
+	#	    echo "$input"
+	#	    ;;
+	#	'[B')
+	#	    current_command+=1
+	#	    if [ $current_command > $max_command ]; then
+	#		current_command=$max_command
+	#		continue
+	#	    fi
+	#	    read -e -i "${commands[$current_command]}" input
+	#	    continue
+	#	    ;;
+	#	*)
+	#	    read -e -i "$input" input
+	#	    break
+	#    esac
+	#done
