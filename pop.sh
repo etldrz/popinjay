@@ -1,5 +1,7 @@
 #!/bin/bash
 
+directory_path=~/git/popinjay
+
 edit_book() {
     # args: input_string filepath library_path
 
@@ -21,18 +23,16 @@ edit_book() {
     edited=false
 
     while true; do
-		#file_title="${library}${title// /_},${author// /_}.txt"
 	filename="${fields[0]// /_},${fields[1]// /_}"
 	filepath="${3}${filename}.txt"
 	read -e -p "($input_string > $filename) " input
 	case $input in
-	    'exit')
+	    'exit'|'back')
 		break
 		;;
 	    'title')
 		read -e -i "${fields[0]}" new_title
 		if [[ "$new_title" == "${fields[0]}" ]]; then
-		    echo same
 		    continue
 		fi
 		fields[0]="$new_title"
@@ -41,7 +41,6 @@ edit_book() {
 	    'author')
 		read -e -i "${fields[1]}" new_author
 		if [[ "$new_author" == "${fields[1]}" ]]; then
-		    echo same
 		    continue
 		fi
 		fields[1]="$new_author"
@@ -50,7 +49,6 @@ edit_book() {
 	    'isbn10/13'|'isbn')
 		read -e -i "${fields[2]}" new_isbn
 		if [[ "$new_isbn" == "${fields[2]}" ]]; then
-		    echo same
 		    continue
 		fi
 		fields[2]="$new_isbn"
@@ -59,14 +57,22 @@ edit_book() {
 	    'read?'|'read')
 		read -e -i "${fields[3]}" new_read?
 		if [[ "$new_read?" == "${fields[3]}" ]]; then
-		    echo same
 		    continue
 		fi
 		fields[3]="$new_read?"
 		edited=true
 		;;
+	    'edition')
+		read -e -i "${fields[4]}" new_edition
+		if [[ "$new_edition" == "${fields[4]}" ]]; then
+		    continue
+		fi
+		fields[4]="$new_edition"
+		edited=true
+		;;
 	    'help'|'h')
-		echo "Here is the book metadata as it currently stands. Call any non-time field to edit it."
+		echo "Here is the book metadata as it currently stands. Call any non-time field to edit it. " \
+		     "Call delete to remove the book from the library."
 		echo
 		printf "%b" \
 		       "title             : ${fields[0]}\n" \
@@ -110,7 +116,7 @@ edit_book() {
 
 start_bookkeeping() {
     # write location
-    library="./library/"
+    library="${directory_path}/library/"
 
     if [ ! -d $library ]; then
 	mkdir $library
@@ -119,7 +125,7 @@ start_bookkeeping() {
 	       "it has been created.\n\n"
     fi
 
-    pop_history=./.popinjay_history
+    pop_history=${directory_path}/.popinjay_history
     history -cr $pop_history
 
     echo "Entering library data, type exit to leave."
@@ -129,18 +135,11 @@ start_bookkeeping() {
 	read -e -p "(${input_string}) " input
 	# Don't ever call him a monkey!
 
-
-	## for each book, make a file containign all needed info. this can be changed latter into one
-	## big file. every time a file is created, store it in a var that can be used in conjuncture
-	## with the edit command. 'get' command will store requested file name into curr. smart
-	## search or manual typing?
-
 	case $input in
 	    'exit')
 		break
 		;;
 	    'new'|'n')
-		echo "making new"
 		read -p "title: " title
 		read -p "author: " author
 		if [[ "$title" == "" && "$author" == "" ]]; then
@@ -183,12 +182,6 @@ start_bookkeeping() {
 		history -s $input
 		continue
 		;;
-	    'edit')
-		echo "editing"
-		echo $input
-		history -s $input
-		continue
-		;;
 	    'get')
 		# append onto input_string the book title and author
 		read -p "Enter search query: " to_search
@@ -223,10 +216,10 @@ start_bookkeeping() {
 	esac
     done
 
-    history -a $pop_history
+    history -a ${pop_history}
     history -cr ~/.bash_history
     echo "Exited library"
 }
 
-trap 'trap -a ./.popinjay_history;exit' EXIT
+trap 'history -a ${directory_path}/.popinjay_history;exit' EXIT
 start_bookkeeping
