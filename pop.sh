@@ -18,6 +18,7 @@ edit_book() {
 	fields+=("${line_split[*]:1}")
     done < $2
 	
+    echo ${fields[*]}
     edited=false
 
     while true; do
@@ -72,8 +73,7 @@ edit_book() {
 		       "author            : ${fields[1]}\n" \
 		       "isbn10/13         : ${fields[2]}\n" \
 		       "read?             : ${fields[3]}\n" \
-		       "edition           : ${fields[4]}\n" \
-		       "initial_edit_time : ${fields[5]}\n" \
+		       "initial_edit_time : ${fields[4]}\n" \
 		       "edit_time         : $(date)\n"
 		continue
 		;;
@@ -95,8 +95,7 @@ edit_book() {
 	       "author            : ${fields[1]}\n" \
 	       "isbn10/13         : ${fields[2]}\n" \
 	       "read?             : ${fields[3]}\n" \
-	       "edition           : ${fields[4]}\n" \
-	       "initial_edit_time : ${fields[5]}\n" \
+	       "initial_edit_time : ${fields[4]}\n" \
 	       "edit_time         : $(date)\n" > $filepath
 	echo "$filename has been edited successfully"
     fi
@@ -161,7 +160,6 @@ start_bookkeeping() {
 			    ;;
 		    esac
 		done
-		read -p "edition: " edition
 		entry_time=$(date)
 
 		file_title="${library}${title// /_},${author// /_}.txt"
@@ -173,11 +171,16 @@ start_bookkeeping() {
 		       "author:${author}\n" \
 		       "isbn10/13:${isbn}\n" \
 		       "read?:${has_read}\n" \
-		       "edition:${edition}\n" \
-		       "initial_entry_time:${entry_time}\n" \
-		       "edit_time:${entry_time}\n" > $file_title
+		       "edit_time:${entry_time}\n" \
+		       "initial_entry_time:${entry_time}\n" > $file_title
 
 		echo "successfully logged '$file_title'"
+		history -s $input
+		continue
+		;;
+	    'edit')
+		echo "editing"
+		echo $input
 		history -s $input
 		continue
 		;;
