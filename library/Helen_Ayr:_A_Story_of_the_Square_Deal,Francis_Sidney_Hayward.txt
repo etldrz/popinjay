@@ -1,0 +1,7 @@
+title:Helen Ayr: A Story of the Square Deal
+author:Francis Sidney Hayward
+isbn10/13:9781378366707
+read?:false
+edition:n/a
+initial_entry_time:Fri Jan  3 06:39:52 PM EST 2025
+edit_time:Fri Jan  3 06:39:52 PM EST 2025

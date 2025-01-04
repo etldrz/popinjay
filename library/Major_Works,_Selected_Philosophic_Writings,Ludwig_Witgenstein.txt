@@ -1,0 +1,7 @@
+title:Major Works, Selected Philosophic Writings
+author:Ludwig Witgenstein
+isbn10/13:978-0-06-155024-9
+read?:false
+edition:n/a
+initial_entry_time:Fri Jan  3 06:56:01 PM EST 2025
+edit_time:Fri Jan  3 06:56:01 PM EST 2025

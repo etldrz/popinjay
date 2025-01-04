@@ -1,0 +1,7 @@
+title:Hiking Virginia: A Guide to the Area's Greatest Hiking Adventures
+author:Bill and Mary Burnham
+isbn10/13:978-1-4930-3126-9
+read?:false
+edition:n/a
+initial_entry_time:Fri Jan  3 06:18:45 PM EST 2025
+edit_time:Fri Jan  3 06:18:45 PM EST 2025

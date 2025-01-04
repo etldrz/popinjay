@@ -1,7 +1,9 @@
 #!/bin/bash
 
+# absolute path used for logging information
 directory_path=~/git/popinjay
 
+# called when a single book is being edited, a subshell of popinjay
 edit_book() {
     # args: input_string filepath library_path
 
@@ -11,21 +13,29 @@ edit_book() {
     # author:BOOK_AUTHOR
     # isbn10/13:ISBN
     # read?:HAS_BEEN_READ
-    # initial_entry_time:TIME_OF_ENTRY
+    # edition:BOOK_EDITION
     # edit_time:MOST_RECENT_EDIT_TIME
+    # initial_entry_time:TIME_OF_ENTRY
 
+    # retrieves the necessary data
     fields=()
     while read line; do
 	line_split=($( echo $line | tr ":" "\n" ))
 	fields+=("${line_split[*]:1}")
     done < $2
 	
+    # when made true, then the data is re-entered and the old file overwritten
     edited=false
 
     while true; do
+	# displays the prompt as '(popinjay > BOOK) '
 	filename="${fields[0]// /_},${fields[1]// /_}"
 	filepath="${3}${filename}.txt"
 	read -e -p "($input_string > $filename) " input
+
+	# allows for editing of the fields for each book. also includes a help and delete command.
+	# each field can be edited by just typing the field name within this sub-process
+	# and altering the text that appears.
 	case $input in
 	    'exit'|'back')
 		break
@@ -86,7 +96,7 @@ edit_book() {
 		continue
 		;;
 	    'delete')
-		rm $2
+		rm $filepath
 		break
 		;;
 	    
@@ -97,6 +107,7 @@ edit_book() {
 	esac
     done
 
+    # if theres been a change of information, then the filepath is written to
     if [ "$edited" = true ]; then
 	printf "%b" \
 	       "title             : ${fields[0]}\n" \
@@ -109,6 +120,8 @@ edit_book() {
 	echo "$filename has been edited successfully"
     fi
 
+    # if the original path passed to this sub-process does not match the current
+    # one, the original is removed.
     if [ ! "$2" == $filepath ]; then
 	rm $2
     fi
@@ -125,6 +138,7 @@ start_bookkeeping() {
 	       "it has been created.\n\n"
     fi
 
+    # file used to store history for cycling back through commands
     pop_history=${directory_path}/.popinjay_history
     history -cr $pop_history
 
@@ -135,17 +149,20 @@ start_bookkeeping() {
 	read -e -p "(${input_string}) " input
 	# Don't ever call him a monkey!
 
+	# can either enter in a new book or edit one already-entered
 	case $input in
 	    'exit')
 		break
 		;;
 	    'new'|'n')
+		# gets all the needed data from the user
 		read -p "title: " title
 		read -p "author: " author
 		if [[ "$title" == "" && "$author" == "" ]]; then
 		    continue
 		fi
 		read -p "isbn10/13: " isbn
+		# keeps going until y/n given
 		while true; do
 		    read -p "have you read it? " yn
 		    case $yn in
@@ -165,10 +182,14 @@ start_bookkeeping() {
 		read -p "edition: " edition
 		entry_time=$(date)
 
+		# the file path combines title and author and replaces all spaces with underscores
 		file_title="${library}${title// /_},${author// /_}.txt"
+
+		# in case of repeated entries (different copies of same book)
 		while [ -f $file_title ]; do
 		    file_title+=_another
 		done
+
 		printf "%b" \
 		       "title:${title}\n" \
 		       "author:${author}\n" \
@@ -183,7 +204,8 @@ start_bookkeeping() {
 		continue
 		;;
 	    'get')
-		# append onto input_string the book title and author
+		# uses find to get a list of books matching search query, from which the
+		# user can select from if there is more than one option.
 		read -p "Enter search query: " to_search
 		to_search=*${to_search// /*}*
 		found=($(find $library -name "${to_search}"))
@@ -200,22 +222,20 @@ start_bookkeeping() {
 		    gotten=${found}
 		fi
 
-		gotten_book=($( echo $gotten | tr "/" "\n" ))
-		gotten_book=($( echo ${gotten_book[2]} | tr "." "\n" ))
-		gotten_book=${gotten_book[0]}
-
+		# passes the string used in front of commands, the requested file, and the path
+		# to the library
 		edit_book $input_string $gotten $library
 		history -s $input
 		continue
 		;;
 	    *)
-		echo "$input"
 		echo "haven't the fucking foggiest"
 		continue
 		;;
 	esac
     done
 
+    # logs history to the history file for popinjay
     history -a ${pop_history}
     history -cr ~/.bash_history
     echo "Exited library"

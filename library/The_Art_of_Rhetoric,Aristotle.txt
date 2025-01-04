@@ -1,0 +1,7 @@
+title:The Art of Rhetoric
+author:Aristotle
+isbn10/13:978014445107
+read?:false
+edition:n/a
+initial_entry_time:Fri Jan  3 06:45:50 PM EST 2025
+edit_time:Fri Jan  3 06:45:50 PM EST 2025

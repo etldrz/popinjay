@@ -1,0 +1,7 @@
+title:Mother Night
+author:Kurt Vonnegut
+isbn10/13:978-1-78487-454-4
+read?:false
+edition:n/a
+initial_entry_time:Fri Jan  3 06:41:35 PM EST 2025
+edit_time:Fri Jan  3 06:41:35 PM EST 2025
