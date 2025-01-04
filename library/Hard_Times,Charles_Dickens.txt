@@ -1,0 +1,7 @@
+title:Hard Times
+author:Charles Dickens
+isbn10/13:0-451-52528-0
+read?:false
+edition:n/a
+initial_entry_time:Sat Jan  4 12:16:34 AM EST 2025
+edit_time:Sat Jan  4 12:16:34 AM EST 2025

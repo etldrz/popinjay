@@ -1,0 +1,7 @@
+title:Deep Learning
+author:John D. Kelleher
+isbn10/13:978-0-262-53755-1
+read?:true
+edition:n/a
+initial_entry_time:Fri Jan  3 11:47:41 PM EST 2025
+edit_time:Fri Jan  3 11:47:41 PM EST 2025

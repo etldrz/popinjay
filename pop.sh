@@ -207,6 +207,14 @@ start_bookkeeping() {
 		# uses find to get a list of books matching search query, from which the
 		# user can select from if there is more than one option.
 		read -p "Enter search query: " to_search
+
+		# blank entry opts out of command
+		if [[ "$to_search" == "" ]]; then
+		    continue
+		fi
+		
+		# this value is passed to find, which returns a list from which the user can
+		# select some result
 		to_search=*${to_search// /*}*
 		found=($(find $library -name "${to_search}"))
 		if [ ${#found[*]} -eq 0 ]; then

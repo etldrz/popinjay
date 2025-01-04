@@ -1,0 +1,7 @@
+title:The Sunset Limited
+author:Cormac McCarthy
+isbn10/13:978-0-307-27836-4
+read?:true
+edition:n/a
+initial_entry_time:Sat Jan  4 12:13:34 AM EST 2025
+edit_time:Sat Jan  4 12:13:34 AM EST 2025

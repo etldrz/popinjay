@@ -1,0 +1,7 @@
+title:The Diary of a Madman and Other Stories
+author:Nikolai Gogol
+isbn10/13:0-451-52954-5
+read?:false
+edition:n/a
+initial_entry_time:Sat Jan  4 12:06:32 AM EST 2025
+edit_time:Sat Jan  4 12:06:32 AM EST 2025

@@ -1,0 +1,7 @@
+title:Animal Farm
+author:George Orwell
+isbn10/13:978-0-451-52634-2
+read?:true
+edition:n/a
+initial_entry_time:Fri Jan  3 11:59:39 PM EST 2025
+edit_time:Fri Jan  3 11:59:39 PM EST 2025

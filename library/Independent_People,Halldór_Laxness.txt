@@ -1,0 +1,7 @@
+title:Independent People
+author:Halldór Laxness
+isbn10/13:978-0-679-76792-3
+read?:false
+edition:n/a
+initial_entry_time:Sat Jan  4 12:09:24 AM EST 2025
+edit_time:Sat Jan  4 12:09:24 AM EST 2025

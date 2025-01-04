@@ -1,0 +1,7 @@
+title:Cyrano de Bergerac
+author:Edmond Rostand
+isbn10/13:0-553-21360-1
+read?:true
+edition:n/a
+initial_entry_time:Sat Jan  4 12:05:27 AM EST 2025
+edit_time:Sat Jan  4 12:05:27 AM EST 2025
