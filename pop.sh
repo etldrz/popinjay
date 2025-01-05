@@ -413,6 +413,7 @@ start_bookkeeping() {
 		;;
 	    'read'|'r')
 		enter_read
+		continue
 		;;
 	    *)
 		echo "haven't the fucking foggiest"
