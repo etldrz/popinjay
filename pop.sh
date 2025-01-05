@@ -168,27 +168,31 @@ enter_read() {
 	echo "The book's status has been updated to 'read?=true'"
     fi
 
-    year="${reading_data}$(date +%Y)/"
-    month="${year}$(date +%b)"
+    year=$(date +%Y)
+    month=$(date +%b)
+    yeardir="${reading_data}${year}/"
+    monthdir="${yeardir}${month}/"
 
-    if [ ! -d $year ]; then
-	mkdir $year
+    if [ ! -d $yeardir ]; then
+	mkdir $yeardir
 	echo
-	echo "$year has been created"
+	echo "You have just logged your first book for ${year}. " \
+	     "The appropriate directory has been created."
 	echo
     fi
 
     if [ ! -d $month ]; then
 	mkdir $month
 	echo
-	echo "$month has been created"
+	echo "You have just logged your first book for ${month}. " \
+	     "The appropriate directory has been created."
 	echo
     fi
 
     filename=$(basename -- "$filepath")
     filename="${filename%.*}"
 
-    linkpath="${month}/${filename}"
+    linkpath="${monthdir}/${filename}"
 
     ln -s "$filepath" "$linkpath"
 
