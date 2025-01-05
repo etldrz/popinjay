@@ -1,7 +1,0 @@
-title:The Sound and the Fury
-author:William Faulkner
-isbn10/13:0-679-73224-1
-read?:false
-edition:n/a
-initial_entry_time:Sat Jan  4 12:10:17 AM EST 2025
-edit_time:Sat Jan  4 12:10:17 AM EST 2025

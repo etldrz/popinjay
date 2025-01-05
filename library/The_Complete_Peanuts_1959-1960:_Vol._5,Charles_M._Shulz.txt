@@ -1,7 +1,0 @@
-title:The Complete Peanuts 1959-1960: Vol. 5
-author:Charles M. Shulz
-isbn10/13:978-1-56097-671-4
-read?:false
-edition:n/a
-initial_entry_time:Fri Jan  3 06:38:12 PM EST 2025
-edit_time:Fri Jan  3 06:38:12 PM EST 2025

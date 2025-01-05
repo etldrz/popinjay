@@ -1,7 +1,0 @@
-title:Lord of the Flies
-author:William Golding
-isbn10/13:978-0-399-50148-7
-read?:true
-edition:n/a
-initial_entry_time:Fri Jan  3 11:47:00 PM EST 2025
-edit_time:Fri Jan  3 11:47:00 PM EST 2025

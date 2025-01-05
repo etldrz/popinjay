@@ -1,7 +1,0 @@
-title:Bushido: The Samurai Code of Japan
-author:Inazō Nitobe
-isbn10/13:978-4-8053-1489-0
-read?:true
-edition:n/a
-initial_entry_time:Fri Jan  3 11:53:02 PM EST 2025
-edit_time:Fri Jan  3 11:53:02 PM EST 2025

@@ -1,7 +1,0 @@
-title:We Have Always Lived in the Castle
-author:Shirley Jackson
-isbn10/13:978-0-14-303997-6
-read?:true
-edition:n/a
-initial_entry_time:Fri Jan  3 06:03:12 PM EST 2025
-edit_time:Fri Jan  3 06:03:12 PM EST 2025

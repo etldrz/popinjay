@@ -1,7 +1,0 @@
-title:The Complete Sherlock Holmes, Volume II
-author:Sir Arthur Conan Doyle
-isbn10/13:978-1-4351-3739-4
-read?:true
-edition:n/a
-initial_entry_time:Fri Jan  3 06:52:25 PM EST 2025
-edit_time:Fri Jan  3 06:52:25 PM EST 2025

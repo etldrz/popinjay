@@ -1,7 +1,0 @@
-title:Towards A New Architecture
-author:Le Corbusier
-isbn10/13:978-1-61427-605-0
-read?:true
-edition:n/a
-initial_entry_time:Fri Jan  3 06:50:23 PM EST 2025
-edit_time:Fri Jan  3 06:50:23 PM EST 2025

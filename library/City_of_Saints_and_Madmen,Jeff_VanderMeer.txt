@@ -1,7 +1,0 @@
-title:City of Saints and Madmen
-author:Jeff VanderMeer
-isbn10/13:978-0-374-53860-6
-read?:false
-edition:n/a
-initial_entry_time:Fri Jan  3 06:43:01 PM EST 2025
-edit_time:Fri Jan  3 06:43:01 PM EST 2025

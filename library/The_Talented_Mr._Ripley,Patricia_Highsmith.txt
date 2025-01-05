@@ -1,7 +1,0 @@
-title:The Talented Mr. Ripley
-author:Patricia Highsmith
-isbn10/13:978-0-393-88146-2
-read?:true
-edition:n/a
-initial_entry_time:Sat Jan  4 12:11:05 AM EST 2025
-edit_time:Sat Jan  4 12:11:05 AM EST 2025

@@ -1,7 +1,0 @@
-title:The Adventures and the Memoirs of Sherlock Holmes
-author:Sir Arthur Conan Doyle
-isbn10/13:978-1-4027-1453-5
-read?:true
-edition:n/a
-initial_entry_time:Fri Jan  3 06:54:29 PM EST 2025
-edit_time:Fri Jan  3 06:54:29 PM EST 2025

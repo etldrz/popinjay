@@ -5,11 +5,11 @@
 # to select no option without C-c
 
 # absolute path used for logging information
-directory_path=~/git/popinjay/
+directory_path=~/git/popinjay
 # library write path
-library="${directory_path}library/"
+library="${directory_path}/library"
 # reading data write path
-reading_data="${library}reading_data/"
+reading_data="${library}/reading_data"
 
 if [ ! -d $library ]; then mkdir $library; fi
 if [ ! -d $reading_data ]; then mkdir $reading_data; fi
@@ -32,7 +32,7 @@ enter_book() {
     fi
     read -p "isbn10/13: " isbn
 
-    if [ "$1" = true ]; then
+    if [ $1 = true ]; then
 	prompt="do you own it? "
     else
 	prompt="have you read it? "
@@ -58,7 +58,7 @@ enter_book() {
 
     # the file path combines title and author and replaces
     # all spaces with underscores
-    file_title="${library}${title// /_},${author// /_}.txt"
+    file_title="${library}/${title// /_},${author// /_}.txt"
 
     # in case of repeated entries (different copies of
     # same book)
@@ -75,16 +75,17 @@ enter_book() {
     fi
 
     printf "%b" \
-	   "title              : ${title}\n" \
-	   "author             : ${author}\n" \
-	   "isbn10/13          : ${isbn}\n" \
-	   "read?              : ${has_read}\n" \
-	   "owned?             : ${owned}\n" \
-	   "edition            : ${edition}\n" \
-	   "initial_entry_time : ${entry_time}\n" \
-	   "edit_time          : ${entry_time}\n" > $file_title
+	   "title              ~ ${title}\n" \
+	   "author             ~ ${author}\n" \
+	   "isbn10/13          ~ ${isbn}\n" \
+	   "read?              ~ ${has_read}\n" \
+	   "owned?             ~ ${owned}\n" \
+	   "edition            ~ ${edition}\n" \
+	   "initial_entry_time ~ ${entry_time}\n" \
+	   "edit_time          ~ ${entry_time}\n" > $file_title
 
-    echo "successfully logged '$file_title'"
+    echo
+    echo "Successfully created an entry for 'library/${title// /_},${author// /_}'"
 }
 
 
@@ -94,7 +95,8 @@ enter_read() {
     # and stores it in a file built for the year/month
     # of entry.
     while true; do
-	read -p "Is it already in the system? " yn
+	read -p "Is it already in the system? If unsure, it is \
+better to assume yes and search for it. " yn
 	case $yn in
 	    [Yy]*)
 		in_system=true
@@ -110,83 +112,106 @@ enter_read() {
 	esac
     done
 
+    again="Search again"
+    new="Create a new entry"
+    to_main="Back to main"
+
     name_given=false
     while ! $name_given; do
 	if [ $in_system = true ]; then
     	    read -p "Enter a search query: " query
-	    query="*${query}*"
+	    query="*${query// /_}*"
     	    found=($(find "$library" -maxdepth 1 -name "$query"))
 
 	    if [ ${#found[*]} -eq 0 ]; then
 		echo "The query '${query}' didn't turn up any results."
-		select opt in "search again" "create a new entry"; do
-		    if [[ "$opt" == "search again" ]]; then
+		select opt in "$again" "$new" "$to_main"; do
+		    if [[ "$opt" == "$again" ]]; then
+			break
+		    elif [[ "$opt" == "$new" ]]; then
+			in_system=false
+			break
+		    elif [[ "$opt" == "$to_main" ]]; then
+			return
+		    fi
+		done
+	    elif [ ${#found[*]} -eq 1 ]; then
+		select f in ${found[*]} "$again" "$new" "$to_main"; do
+		    if [[ "$f" == "$again" ]]; then
+			break
+		    elif [[ "$f" == "$new" ]]; then
+			in_system=false
+			break
+		    elif [[ "$f" == "$to_main" ]]; then
+			return
+		    else
+			filepath=${found}
+			name_given=true
 			break
 		    fi
-		    in_system=false
-		    break
 		done
-		continue
-	    elif [ ${#found[*]} -eq 1 ]; then
-		filepath=${found}
-		name_given=true
-		continue
 	    else
-		select f in ${found[*]}; do
-		    filepath=$f
+		select f in ${found[*]} "$again" "$new" "$to_main"; do
+		    if [[ "$f" == "$again" ]]; then
+			break
+		    elif [[ "$f" == "$new" ]]; then
+			in_system=false
+			break
+		    elif [[ "$f" == "$to_main" ]]; then
+			return;
+		    fi
+
+		    filepath="$f"
 		    name_given=true
 		    break
 		done
-		continue
 	    fi
 	else
 	    enter_book true
 	    # gets the most recently edited file
-	    filepath="${library}$(ls -t $library | head -n1)"
+	    filepath="${library}/$(ls -t $library | head -n1)"
 	    name_given=true
-	    continue
 	fi
     done
 
     fields=()
     while read line; do
-	line_split=($( echo $line | tr ":" "\n" ))
+	line_split=($( echo $line | tr "~" "\n" ))
 	fields+=("${line_split[*]:1}")
     done < "$filepath"
 
     if [[ ! "${fields[3]}" == "true" ]]; then
+	echo "${fields}[3]"
 	fields[3]="true"
 	printf "%b" \
-	       "title             : ${fields[0]}\n" \
-	       "author            : ${fields[1]}\n" \
-	       "isbn10/13         : ${fields[2]}\n" \
-	       "read?             : ${fields[3]}\n" \
-	       "owned?            : ${fields[4]}\n" \
-	       "edition           : ${fields[5]}\n" \
-	       "initial_edit_time : ${fields[6]}\n" \
-	       "edit_time         : $(date)\n" > "$filepath"
+	       "title             ~ ${fields[0]}\n" \
+	       "author            ~ ${fields[1]}\n" \
+	       "isbn10/13         ~ ${fields[2]}\n" \
+	       "read?             ~ ${fields[3]}\n" \
+	       "owned?            ~ ${fields[4]}\n" \
+	       "edition           ~ ${fields[5]}\n" \
+	       "initial_edit_time ~ ${fields[6]}\n" \
+	       "edit_time         ~ $(date)\n" > "$filepath"
 	echo "The book's status has been updated to 'read?=true'"
     fi
 
     year=$(date +%Y)
     month=$(date +%b)
-    yeardir="${reading_data}${year}/"
-    monthdir="${yeardir}${month}/"
+    yeardir="${reading_data}/${year}"
+    monthdir="${yeardir}/${month}"
 
     if [ ! -d $yeardir ]; then
 	mkdir $yeardir
 	echo
 	echo "You have just logged your first book for ${year}. " \
 	     "The appropriate directory has been created."
-	echo
     fi
 
-    if [ ! -d $month ]; then
-	mkdir $month
+    if [ ! -d $monthdir ]; then
+	mkdir $monthdir
 	echo
 	echo "You have just logged your first book for ${month}. " \
 	     "The appropriate directory has been created."
-	echo
     fi
 
     filename=$(basename -- "$filepath")
@@ -194,16 +219,23 @@ enter_read() {
 
     linkpath="${monthdir}/${filename}"
 
+
+    # ensuring that multiple entries of the same book can be logged
+    # per month
+    while [ -f $linkpath ]; do
+	linkpath+=_another
+    done
+
     ln -s "$filepath" "$linkpath"
 
     echo
-    echo "The book has been successfully logged as '${linkpath}'"
+    echo "$filename has been successfully logged in 'library/reading_data/${year}/${month}'"
 }
 
 
 # called when a single book is being edited, a subshell of popinjay
 edit_book() {
-    # args: input_string filepath library_path
+    # args: input_string filepath
 
     # each book file is organized as
     #
@@ -219,7 +251,7 @@ edit_book() {
     # retrieves the necessary data
     fields=()
     while read line; do
-	line_split=($( echo $line | tr ":" "\n" ))
+	line_split=($( echo $line | tr "~" "\n" ))
 	fields+=("${line_split[*]:1}")
     done < $2
 	
@@ -232,7 +264,7 @@ edit_book() {
 	# gets the book name from the fields instead of filename to
 	# allow for updates.
 	bookname="${fields[0]// /_},${fields[1]// /_}"
-	filepath="${3}${bookname}.txt"
+	filepath="${library}/${bookname}.txt"
 	read -e -p "($input_string > $bookname) " input
 
 	# allows for editing of the fields for each book. also
@@ -307,14 +339,14 @@ edit_book() {
 		     "Call delete to remove the book from the library."
 		echo
 		printf "%b" \
-		       "title             : ${fields[0]}\n" \
-		       "author            : ${fields[1]}\n" \
-		       "isbn10/13         : ${fields[2]}\n" \
-		       "read?             : ${fields[3]}\n" \
-		       "owned?            : ${fields[4]}\n" \
-		       "edition           : ${fields[5]}\n" \
-		       "initial_edit_time : ${fields[6]}\n" \
-		       "edit_time         : $(date)\n"
+		       "title             ~ ${fields[0]}\n" \
+		       "author            ~ ${fields[1]}\n" \
+		       "isbn10/13         ~ ${fields[2]}\n" \
+		       "read?             ~ ${fields[3]}\n" \
+		       "owned?            ~ ${fields[4]}\n" \
+		       "edition           ~ ${fields[5]}\n" \
+		       "initial_edit_time ~ ${fields[6]}\n" \
+		       "edit_time         ~ $(date)\n"
 		continue
 		;;
 	    'delete')
@@ -333,14 +365,14 @@ edit_book() {
     # written to
     if [ "$edited" = true ]; then
 	printf "%b" \
-	       "title             : ${fields[0]}\n" \
-	       "author            : ${fields[1]}\n" \
-	       "isbn10/13         : ${fields[2]}\n" \
-	       "read?             : ${fields[3]}\n" \
-	       "owned?            : ${fields[4]}\n" \
-	       "edition           : ${fields[5]}\n" \
-	       "initial_edit_time : ${fields[6]}\n" \
-	       "edit_time         : $(date)\n" > "$filepath"
+	       "title             ~ ${fields[0]}\n" \
+	       "author            ~ ${fields[1]}\n" \
+	       "isbn10/13         ~ ${fields[2]}\n" \
+	       "read?             ~ ${fields[3]}\n" \
+	       "owned?            ~ ${fields[4]}\n" \
+	       "edition           ~ ${fields[5]}\n" \
+	       "initial_edit_time ~ ${fields[6]}\n" \
+	       "edit_time         ~ $(date)\n" > "$filepath"
 	echo "$bookname has been edited successfully"
     fi
 
@@ -394,10 +426,10 @@ start_bookkeeping() {
 		
 		# this value is passed to find, which returns a list
 		# from which the user can select some result
-		to_search=*${to_search// /*}*
-		found=($(find "$library" -maxdepth 1 -name "${to_search}"))
+		query="*${to_search// /_}*"
+		found=($(find "$library" -maxdepth 1 -name "${query}"))
 		if [ ${#found[*]} -eq 0 ]; then
-		    echo "Bad search query of '$to_search'"
+		    echo "Bad search query of '$query'"
 		    continue
 		elif [ ${#found[*]} -gt 1 ]; then
 		    echo "multiple results gotten, select the best match"
@@ -411,7 +443,7 @@ start_bookkeeping() {
 
 		# passes the string used in front of commands, the
 		# requested file, and the path to the library
-		edit_book $input_string $gotten $library
+		edit_book $input_string $gotten
 		history -s $input
 		continue
 		;;

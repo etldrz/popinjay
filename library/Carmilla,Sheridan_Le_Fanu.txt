@@ -1,7 +1,0 @@
-title             : Carmilla
-author            : Sheridan Le Fanu
-isbn10/13         : 978-1-3988-2741-7
-read?             : true
-edition           : n/a
-initial_edit_time : Fri Jan 3 04 55 50 PM EST 2025
-edit_time         : Fri Jan  3 06:00:24 PM EST 2025

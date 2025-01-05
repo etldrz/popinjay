@@ -1,7 +1,0 @@
-title:Men Without Women
-author:Ernest Hemingway
-isbn10/13:978-0-099-55157-7
-read?:true
-edition:n/a
-initial_entry_time:Sat Jan  4 12:15:21 AM EST 2025
-edit_time:Sat Jan  4 12:15:21 AM EST 2025

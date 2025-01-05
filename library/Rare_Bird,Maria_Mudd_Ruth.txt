@@ -1,7 +1,0 @@
-title:Rare Bird
-author:Maria Mudd Ruth
-isbn10/13:1-59486-090-4
-read?:true
-edition:n/a
-initial_entry_time:Fri Jan  3 06:56:46 PM EST 2025
-edit_time:Fri Jan  3 06:56:46 PM EST 2025

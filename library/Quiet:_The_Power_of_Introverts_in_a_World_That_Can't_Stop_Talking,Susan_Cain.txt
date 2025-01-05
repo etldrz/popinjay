@@ -1,7 +1,0 @@
-title             : Quiet: The Power of Introverts in a World That Can't Stop Talking
-author            : Susan Cain
-isbn10/13         : 978-0-307-35215-6
-read?             : false
-edition           : n/a
-initial_edit_time : Fri Jan 3 06 48 15 PM EST 2025
-edit_time         : Fri Jan  3 06:49:03 PM EST 2025

@@ -1,7 +1,0 @@
-title:Death in the Afternoon
-author:Ernest Hemingway
-isbn10/13:978-0-099-57683-9
-read?:false
-edition:n/a
-initial_entry_time:Sat Jan  4 12:17:03 AM EST 2025
-edit_time:Sat Jan  4 12:17:03 AM EST 2025
