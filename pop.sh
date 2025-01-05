@@ -413,6 +413,7 @@ start_bookkeeping() {
 		;;
 	    'read'|'r')
 		enter_read
+		history -s $input
 		continue
 		;;
 	    *)
