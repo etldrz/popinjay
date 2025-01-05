@@ -14,7 +14,8 @@ reading_data="${library}/reading_data"
 if [ ! -d $library ]; then mkdir $library; fi
 if [ ! -d $reading_data ]; then mkdir $reading_data; fi
 
-
+# called when a new book is being put into the system,
+# via either the 'new'or 'read' commands
 enter_book() {
     # args: from_enter_read?
     #         a boolean  which determines whether popinjay asks if
@@ -90,10 +91,10 @@ enter_book() {
 
 
 enter_read() {
-    
     # takes information about a book which has been read
     # and stores it in a file built for the year/month
     # of entry.
+
     while true; do
 	read -p "Is it already in the system? If unsure, it is \
 better to assume yes and search for it. " yn
@@ -181,7 +182,6 @@ better to assume yes and search for it. " yn
     done < "$filepath"
 
     if [[ ! "${fields[3]}" == "true" ]]; then
-	echo "${fields}[3]"
 	fields[3]="true"
 	printf "%b" \
 	       "title             ~ ${fields[0]}\n" \
@@ -203,14 +203,14 @@ better to assume yes and search for it. " yn
     if [ ! -d $yeardir ]; then
 	mkdir $yeardir
 	echo
-	echo "You have just logged your first book for ${year}. " \
+	echo "You have just logged your first book for ${year}. "\
 	     "The appropriate directory has been created."
     fi
 
     if [ ! -d $monthdir ]; then
 	mkdir $monthdir
 	echo
-	echo "You have just logged your first book for ${month}. " \
+	echo "You have just logged your first book for $(date +%B). "\
 	     "The appropriate directory has been created."
     fi
 
@@ -233,7 +233,6 @@ better to assume yes and search for it. " yn
 }
 
 
-# called when a single book is being edited, a subshell of popinjay
 edit_book() {
     # args: input_string filepath
 
