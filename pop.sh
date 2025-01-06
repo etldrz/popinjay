@@ -1,9 +1,5 @@
 #!/bin/bash
 
-
-# issue: when select is used there is no way for the user
-# to select no option without C-c
-
 # absolute path used for logging information
 directory_path=~/git/popinjay
 # library write path
@@ -232,7 +228,6 @@ better to assume yes and search for it. " yn
     echo "$filename has been successfully logged in 'library/reading_data/${year}/${month}'"
 }
 
-
 edit_book() {
     # args: input_string filepath
 
@@ -264,7 +259,7 @@ edit_book() {
 	# allow for updates.
 	bookname="${fields[0]// /_},${fields[1]// /_}"
 	filepath="${library}/${bookname}.txt"
-	read -e -p "($input_string > $bookname) " input
+	read -e -p "($1 > $bookname) " input
 
 	# allows for editing of the fields for each book. also
 	# includes a help and delete command. each field can be
@@ -380,6 +375,12 @@ edit_book() {
     if [ ! "$2" == "$filepath" ]; then
 	rm $2
     fi
+}
+
+get_data() {
+
+
+    
 }
 
 start_bookkeeping() {
