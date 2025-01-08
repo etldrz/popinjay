@@ -22,7 +22,7 @@ enter_book() {
 
     # gets all the needed data from the user
     read -p "title: " title
-    read -p "author: " author
+    read -p "author/editor: " author
     # allows for the user to opt-out of the command
     if [[ "$title" == "" && "$author" == "" ]]; then
 	return
@@ -50,7 +50,7 @@ enter_book() {
 		;;
 	esac
     done
-    read -p "edition: " edition
+    read -p "comments: " comments
     entry_time=$(date)
 
     # the file path combines title and author and replaces
@@ -77,7 +77,7 @@ enter_book() {
 	   "isbn10/13          ~ ${isbn}\n" \
 	   "read?              ~ ${has_read}\n" \
 	   "owned?             ~ ${owned}\n" \
-	   "edition            ~ ${edition}\n" \
+	   "comments           ~ ${comments}\n" \
 	   "initial_entry_time ~ ${entry_time}\n" \
 	   "edit_time          ~ ${entry_time}\n" > $file_title
 
@@ -185,7 +185,7 @@ better to assume yes and search for it. " yn
 	       "isbn10/13         ~ ${fields[2]}\n" \
 	       "read?             ~ ${fields[3]}\n" \
 	       "owned?            ~ ${fields[4]}\n" \
-	       "edition           ~ ${fields[5]}\n" \
+	       "comments          ~ ${fields[5]}\n" \
 	       "initial_edit_time ~ ${fields[6]}\n" \
 	       "edit_time         ~ $(date)\n" > "$filepath"
 	echo "The book's status has been updated to 'read?=true'"
@@ -238,7 +238,7 @@ edit_book() {
     # isbn10/13:ISBN
     # read?:HAS_BEEN_READ
     # owned?:IS_OWNED
-    # edition:BOOK_EDITION
+    # comments:BOOK_COMMENTS
     # edit_time:MOST_RECENT_EDIT_TIME
     # initial_entry_time:TIME_OF_ENTRY
 
@@ -319,12 +319,12 @@ edit_book() {
 		fields[4]="$bool"
 		edited=true
 		;;
-	    'edition')
-		read -e -i "${fields[5]}" new_edition
-		if [[ "$new_edition" == "${fields[5]}" ]]; then
+	    'comments')
+		read -e -i "${fields[5]}" new_comments
+		if [[ "$new_comments" == "${fields[5]}" ]]; then
 		    continue
 		fi
-		fields[5]="$new_edition"
+		fields[5]="$new_comments"
 		edited=true
 		;;
 	    'help'|'h')
@@ -338,7 +338,7 @@ edit_book() {
 		       "isbn10/13         ~ ${fields[2]}\n" \
 		       "read?             ~ ${fields[3]}\n" \
 		       "owned?            ~ ${fields[4]}\n" \
-		       "edition           ~ ${fields[5]}\n" \
+		       "comments          ~ ${fields[5]}\n" \
 		       "initial_edit_time ~ ${fields[6]}\n" \
 		       "edit_time         ~ $(date)\n"
 		continue
@@ -364,7 +364,7 @@ edit_book() {
 	       "isbn10/13         ~ ${fields[2]}\n" \
 	       "read?             ~ ${fields[3]}\n" \
 	       "owned?            ~ ${fields[4]}\n" \
-	       "edition           ~ ${fields[5]}\n" \
+	       "comments          ~ ${fields[5]}\n" \
 	       "initial_edit_time ~ ${fields[6]}\n" \
 	       "edit_time         ~ $(date)\n" > "$filepath"
 	echo "$bookname has been edited successfully"
@@ -375,12 +375,6 @@ edit_book() {
     if [ ! "$2" == "$filepath" ]; then
 	rm $2
     fi
-}
-
-get_data() {
-
-
-    
 }
 
 start_bookkeeping() {
