@@ -1,14 +1,33 @@
 #!/bin/bash
 
+
+# issue: when using the exit feature of enter_book by pressing enter twice
+# enter_read will still grab the most recently edited file and make changes to
+# it.
+
+# issue: when switching back and forth between bools for read/owned while in
+# the 'get' menu the code could potentially try to create symlinks that already
+# exist
+
 # absolute path used for logging information
 directory_path=~/git/popinjay
-# library write path
-library="${directory_path}/library"
+# containing all book data
+library=${directory_path}/library
+# where all actual book titles are stored
+all_books=${library}/books
+# a set of symbolic links for all books owned is
+# stored here
+owned_books=${library}/owned_books
 # reading data write path
-reading_data="${library}/reading_data"
+reading_data=${library}/reading_data
+# a set of symbolic links for all books read is
+# stored here
+read_books=${reading_data}/read_books
 
-if [ ! -d $library ]; then mkdir $library; fi
-if [ ! -d $reading_data ]; then mkdir $reading_data; fi
+for dir in $directory_path $all_books $owned_books \
+	   $reading_data $read_books; do
+    if [ ! -d $dir ]; then mkdir $dir; fi
+done
 
 # called when a new book is being put into the system,
 # via either the 'new'or 'read' commands
@@ -18,7 +37,6 @@ enter_book() {
     #         the book is owned vs the book is read. Asks former if
     #         enter_book gets called from enter_read vs the 'new'
     #         command of start_bookkeeping
-
 
     # gets all the needed data from the user
     read -p "title: " title
@@ -55,12 +73,13 @@ enter_book() {
 
     # the file path combines title and author and replaces
     # all spaces with underscores
-    file_title="${library}/${title// /_},${author// /_}.txt"
+    translated_name="${title// /_},${author// /_}"
+    filename="${all_books}/${translated_name}.txt"
 
     # in case of repeated entries (different copies of
     # same book)
-    while [ -f $file_title ]; do
-	file_title+=_another
+    while [ -f $filename ]; do
+	filename+=_another
     done
 
     if [ "$1" = true ]; then
@@ -72,17 +91,26 @@ enter_book() {
     fi
 
     printf "%b" \
-	   "title              ~ ${title}\n" \
-	   "author             ~ ${author}\n" \
-	   "isbn10/13          ~ ${isbn}\n" \
-	   "read?              ~ ${has_read}\n" \
-	   "owned?             ~ ${owned}\n" \
-	   "comments           ~ ${comments}\n" \
-	   "initial_entry_time ~ ${entry_time}\n" \
-	   "edit_time          ~ ${entry_time}\n" > $file_title
+    	   "title              ~ ${title}\n" \
+    	   "author             ~ ${author}\n" \
+    	   "isbn10/13          ~ ${isbn}\n" \
+    	   "read?              ~ ${has_read}\n" \
+    	   "owned?             ~ ${owned}\n" \
+    	   "comments           ~ ${comments}\n" \
+    	   "initial_entry_time ~ ${entry_time}\n" \
+    	   "edit_time          ~ ${entry_time}\n" > $filename
+
+    read_path_symlink="${read_books}/${translated_name}"
+    if [ $has_read == true ] && [ ! -f "$read_path_symlink" ]; then
+	ln -s "$filename" "$read_path_symlink"
+    fi
+    owned_path_symlink="${owned_books}/${translated_name}"
+    if [ $owned == true ] && [ ! -f "$owned_path_symlink" ]; then
+	ln -s "$filename" "$owned_path_symlink"
+    fi
 
     echo
-    echo "Successfully created an entry for 'library/${title// /_},${author// /_}'"
+    echo "Successfully created an entry for 'library/books/${title// /_},${author// /_}'"
 }
 
 
@@ -118,7 +146,7 @@ better to assume yes and search for it. " yn
 	if [ $in_system = true ]; then
     	    read -p "Enter a search query: " query
 	    query="*${query// /_}*"
-    	    found=($(find "$library" -maxdepth 1 -name "$query"))
+    	    found=($(find "$all_books" -maxdepth 1 -name "$query"))
 
 	    if [ ${#found[*]} -eq 0 ]; then
 		echo "The query '${query}' didn't turn up any results."
@@ -166,7 +194,7 @@ better to assume yes and search for it. " yn
 	else
 	    enter_book true
 	    # gets the most recently edited file
-	    filepath="${library}/$(ls -t $library | head -n1)"
+	    filepath="${all_books}/$(ls -t $all_books | head -n1)"
 	    name_given=true
 	fi
     done
@@ -177,17 +205,24 @@ better to assume yes and search for it. " yn
 	fields+=("${line_split[*]:1}")
     done < "$filepath"
 
+    filename=$(basename -- "$filepath")
+    filename="${filename%.*}"
+
     if [[ ! "${fields[3]}" == "true" ]]; then
 	fields[3]="true"
 	printf "%b" \
-	       "title             ~ ${fields[0]}\n" \
-	       "author            ~ ${fields[1]}\n" \
-	       "isbn10/13         ~ ${fields[2]}\n" \
-	       "read?             ~ ${fields[3]}\n" \
-	       "owned?            ~ ${fields[4]}\n" \
-	       "comments          ~ ${fields[5]}\n" \
-	       "initial_edit_time ~ ${fields[6]}\n" \
-	       "edit_time         ~ $(date)\n" > "$filepath"
+	       "title              ~ ${fields[0]}\n" \
+	       "author             ~ ${fields[1]}\n" \
+	       "isbn10/13          ~ ${fields[2]}\n" \
+	       "read?              ~ ${fields[3]}\n" \
+	       "owned?             ~ ${fields[4]}\n" \
+	       "comments           ~ ${fields[5]}\n" \
+	       "initial_entry_time ~ ${fields[6]}\n" \
+	       "edit_time          ~ $(date)\n" > "$filepath"
+
+	all_read_symlink="${read_books}/$filename"
+	ln -s "$filepath" "$all_read_symlink"
+
 	echo "The book's status has been updated to 'read?=true'"
     fi
 
@@ -210,19 +245,14 @@ better to assume yes and search for it. " yn
 	     "The appropriate directory has been created."
     fi
 
-    filename=$(basename -- "$filepath")
-    filename="${filename%.*}"
-
-    linkpath="${monthdir}/${filename}"
-
-
+    time_read_symlink="${monthdir}/$filename"
     # ensuring that multiple entries of the same book can be logged
     # per month
-    while [ -f $linkpath ]; do
-	linkpath+=_another
+    while [ -f $time_read_symlink ]; do
+	time_read_symlink+=_another
     done
 
-    ln -s "$filepath" "$linkpath"
+    ln -s "$filepath" "$time_read_symlink"
 
     echo
     echo "$filename has been successfully logged in 'library/reading_data/${year}/${month}'"
@@ -253,12 +283,17 @@ edit_book() {
     # overwritten.
     edited=false
 
+    # when made true, corresponding symlinks to the designated files
+    # for ownership and reading will be made
+    read_status_changed=false
+    owned_status_changed=false
+
     while true; do
 	# displays the prompt as '(popinjay > BOOK) '.
 	# gets the book name from the fields instead of filename to
 	# allow for updates.
 	bookname="${fields[0]// /_},${fields[1]// /_}"
-	filepath="${library}/${bookname}.txt"
+	filepath="${all_books}/${bookname}.txt"
 	read -e -p "($1 > $bookname) " input
 
 	# allows for editing of the fields for each book. also
@@ -294,28 +329,30 @@ edit_book() {
 		edited=true
 		;;
 	    'read?'|'read')
-		echo "The current status of the book is "\
+		echo "The current status of the book is" \
 		     "read?=${fields[3]}"
 		select bool in "true" "false"; do
 		    break
 		done
 		
-		if [[ "$bool" == "${fields[3]}" ]]; then
-		    continue
-		fi
-		fields[3]="$bool"
+		if [[ $bool == "${fields[3]}" ]]; then continue; fi
+
+		read_status_changed=true
+
+		fields[3]=$bool
 		edited=true
 		;;
 	    'owned?'|'owned')
-		echo "The current status of the book is " \
+		echo "The current status of the book is" \
 		     "owned?=${fields[4]}"
 		select bool in "true" "false"; do
 		    break
 		done
 
-		if [[ "$bool" == "${fields[4]}" ]]; then
-		    continue
-		fi
+		if [[ "$bool" == "${fields[4]}" ]]; then continue; fi
+
+		owned_status_changed=true
+
 		fields[4]="$bool"
 		edited=true
 		;;
@@ -333,18 +370,22 @@ edit_book() {
 		     "Call delete to remove the book from the library."
 		echo
 		printf "%b" \
-		       "title             ~ ${fields[0]}\n" \
-		       "author            ~ ${fields[1]}\n" \
-		       "isbn10/13         ~ ${fields[2]}\n" \
-		       "read?             ~ ${fields[3]}\n" \
-		       "owned?            ~ ${fields[4]}\n" \
-		       "comments          ~ ${fields[5]}\n" \
-		       "initial_edit_time ~ ${fields[6]}\n" \
-		       "edit_time         ~ $(date)\n"
+		       "title              ~ ${fields[0]}\n" \
+		       "author             ~ ${fields[1]}\n" \
+		       "isbn10/13          ~ ${fields[2]}\n" \
+		       "read?              ~ ${fields[3]}\n" \
+		       "owned?             ~ ${fields[4]}\n" \
+		       "comments           ~ ${fields[5]}\n" \
+		       "initial_entry_time ~ ${fields[6]}\n" \
+		       "edit_time          ~ $(date)\n"
 		continue
 		;;
 	    'delete')
-		rm "$filepath"
+		# removes all files found in order to also get symbolic links
+		found=$(find $library -name "*${bookname}*")
+		for file in ${found[*]}; do
+		    rm "$file"
+		done
 		break
 		;;
 	    
@@ -359,14 +400,14 @@ edit_book() {
     # written to
     if [ "$edited" = true ]; then
 	printf "%b" \
-	       "title             ~ ${fields[0]}\n" \
-	       "author            ~ ${fields[1]}\n" \
-	       "isbn10/13         ~ ${fields[2]}\n" \
-	       "read?             ~ ${fields[3]}\n" \
-	       "owned?            ~ ${fields[4]}\n" \
-	       "comments          ~ ${fields[5]}\n" \
-	       "initial_edit_time ~ ${fields[6]}\n" \
-	       "edit_time         ~ $(date)\n" > "$filepath"
+	       "title              ~ ${fields[0]}\n" \
+	       "author             ~ ${fields[1]}\n" \
+	       "isbn10/13          ~ ${fields[2]}\n" \
+	       "read?              ~ ${fields[3]}\n" \
+	       "owned?             ~ ${fields[4]}\n" \
+	       "comments           ~ ${fields[5]}\n" \
+	       "initial_entry_time ~ ${fields[6]}\n" \
+	       "edit_time          ~ $(date)\n" > "$filepath"
 	echo "$bookname has been edited successfully"
     fi
 
@@ -375,14 +416,33 @@ edit_book() {
     if [ ! "$2" == "$filepath" ]; then
 	rm $2
     fi
+
+    # if the value of read? is changed, then add or remove
+    # the appropriate symlink as needed
+    if [ $read_status_changed = true ] && [[ "${fields[3]}" == "true" ]]; then
+	ln -s "$filepath" "${read_books}/$bookname"
+    elif [ $read_status_changed = true ] && [[ "${fields[3]}" == "false" ]]; then
+	for file in $(find "$reading_data" -name "${bookname}"); do
+	    rm "$file" 
+	done
+    fi
+
+    # if the value of owned? is changed, then add or remove
+    # the appropriate symlink as needed
+    if [ $owned_status_changed == true ] && [[ "${fields[4]}" == "true" ]]; then
+	ln -s "$filepath" "${owned_books}/$bookname"
+    elif [ $owned_status_changed == true ] && [[ "${fields[4]}" == "false" ]]; then
+	rm -f "${owned_books}/$bookname"
+    fi
+    
 }
 
 start_bookkeeping() {
 
-    if [ ! -d $library ]; then
-	mkdir $library
+    if [ ! -d $all_books ]; then
+	mkdir $all_books
 	printf "%b" \
-	       "The necessary directory '$(readlink -f $library)' " \
+	       "The necessary directory '$(readlink -f $all_books)' " \
 	       "wasn't found; it has been created.\n\n"
     fi
 
@@ -421,7 +481,7 @@ start_bookkeeping() {
 		# this value is passed to find, which returns a list
 		# from which the user can select some result
 		query="*${to_search// /_}*"
-		found=($(find "$library" -maxdepth 1 -name "${query}"))
+		found=($(find "$all_books" -maxdepth 1 -name "${query}"))
 		if [ ${#found[*]} -eq 0 ]; then
 		    echo "Bad search query of '$query'"
 		    continue

@@ -2,5 +2,9 @@
 *#*
 
 *.txt
-!library/Diary_of_a_Wimpy_Kid\:_Hot_Mess\,Jeff_Kinney.txt
+library/books/*
+library/owned_books/*
+library/reading_data/*
+!library/*/Diary_of_a_Wimpy_Kid\:_Hot_Mess\,Jeff_Kinney*
+
 ts.sh
