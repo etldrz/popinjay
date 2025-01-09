@@ -22,7 +22,7 @@ reading_data=${library}/reading_data
 # a set of symbolic links for all books read is stored here
 read_books=${reading_data}/read_books
 
-for dir in $directory_path $all_books $owned_books \
+for dir in $directory_path $library $all_books $owned_books \
 	   $reading_data $read_books; do
     if [ ! -d $dir ]; then mkdir $dir; fi
 done
