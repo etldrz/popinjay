@@ -15,13 +15,11 @@ directory_path=~/git/popinjay
 library=${directory_path}/library
 # where all actual book titles are stored
 all_books=${library}/books
-# a set of symbolic links for all books owned is
-# stored here
+# a set of symbolic links for all books owned is stored here
 owned_books=${library}/owned_books
 # reading data write path
 reading_data=${library}/reading_data
-# a set of symbolic links for all books read is
-# stored here
+# a set of symbolic links for all books read is stored here
 read_books=${reading_data}/read_books
 
 for dir in $directory_path $all_books $owned_books \
