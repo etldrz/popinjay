@@ -139,14 +139,15 @@ better to assume yes and search for it. " yn
     new="Create a new entry"
     to_main="Back to main"
 
+    # this loop will repeat until an appropriate book file is given
     name_given=false
     while ! $name_given; do
 	if [ $in_system = true ]; then
     	    read -p "Enter a search query: " query
+
 	    query="*${query// /_}*"
     	    found=($(find "$all_books" -maxdepth 1 -name "$query"))
-
-	    if [ ${#found[*]} -eq 0 ]; then
+	    if [ ${#found[*]} = 0 ]; then
 		echo "The query '${query}' didn't turn up any results."
 		select opt in "$again" "$new" "$to_main"; do
 		    if [[ "$opt" == "$again" ]]; then
@@ -158,7 +159,7 @@ better to assume yes and search for it. " yn
 			return
 		    fi
 		done
-	    elif [ ${#found[*]} -eq 1 ]; then
+	    elif [ ${#found[*]} = 1 ]; then
 		select f in ${found[*]} "$again" "$new" "$to_main"; do
 		    if [[ "$f" == "$again" ]]; then
 			break
@@ -437,13 +438,6 @@ edit_book() {
 
 start_bookkeeping() {
 
-    if [ ! -d $all_books ]; then
-	mkdir $all_books
-	printf "%b" \
-	       "The necessary directory '$(readlink -f $all_books)' " \
-	       "wasn't found; it has been created.\n\n"
-    fi
-
     # file used to store history for cycling back through commands
     pop_history=${directory_path}/.popinjay_history
     history -cr $pop_history
@@ -461,11 +455,12 @@ start_bookkeeping() {
 		break
 		;;
 	    'new'|'n')
+		history -s "$input"
 		enter_book false
-		history -s $input
 		continue
 		;;
 	    'get')
+		history -s "$input"
 		# uses find to get a list of books matching search
 		# query, from which the user can select from if there
 		# is more than one option.
@@ -480,7 +475,7 @@ start_bookkeeping() {
 		# from which the user can select some result
 		query="*${to_search// /_}*"
 		found=($(find "$all_books" -maxdepth 1 -name "${query}"))
-		if [ ${#found[*]} -eq 0 ]; then
+		if [ ${#found[*]} = 0 ]; then
 		    echo "Bad search query of '$query'"
 		    continue
 		elif [ ${#found[*]} -gt 1 ]; then
@@ -496,12 +491,13 @@ start_bookkeeping() {
 		# passes the string used in front of commands, the
 		# requested file, and the path to the library
 		edit_book $input_string $gotten
-		history -s $input
+
 		continue
 		;;
 	    'read'|'r')
+		history -s "$input"
 		enter_read
-		history -s $input
+
 		continue
 		;;
 	    *)
@@ -512,7 +508,7 @@ start_bookkeeping() {
     done
 
     # logs history to the history file for popinjay
-    history -a ${pop_history}
+    history -a $pop_history
     history -cr ~/.bash_history
     echo "Exited library"
 }
