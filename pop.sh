@@ -143,7 +143,7 @@ better to assume yes and search for it. " yn
     name_given=false
     while ! $name_given; do
 	if [ $in_system = true ]; then
-    	    read -p "Enter a search query: " query
+    	    read -p "Enter search query (case sensitive): " query
 
 	    query="*${query// /_}*"
     	    found=($(find "$all_books" -maxdepth 1 -name "$query"))
@@ -464,7 +464,7 @@ start_bookkeeping() {
 		# uses find to get a list of books matching search
 		# query, from which the user can select from if there
 		# is more than one option.
-		read -p "Enter search query: " to_search
+		read -p "Enter search query (case sensitive): " to_search
 
 		# blank entry opts out of command
 		if [[ "$to_search" == "" ]]; then
