@@ -18,7 +18,7 @@
 directory_path=~/git/popinjay
 # containing all book data
 library=${directory_path}/library
-# where all actual book titles are stored
+# where all actual book data are stored
 all_books=${library}/books
 # a set of symbolic links for all books owned is stored here
 owned_books=${library}/owned_books
@@ -49,7 +49,7 @@ enter_book() {
 	return
     fi
     read -p "isbn10/13: " isbn
-
+    # see args description
     if [ $1 = true ]; then
 	prompt="do you own it? "
     else
@@ -85,7 +85,7 @@ enter_book() {
 	filename+=_another
     done
 
-    if [ "$1" = true ]; then
+    if [ $1 = true ]; then
 	has_read=true
 	owned=$book_status
     else
@@ -103,6 +103,8 @@ enter_book() {
     	   "initial_entry_time ~ ${entry_time}\n" \
     	   "edit_time          ~ ${entry_time}\n" > $filename
 
+    # symlinks are used to log metadata--if a file symlink is in $read_books
+    # that means it has been read, and the same holds for it being in $owned_books.
     read_path_symlink="${read_books}/${translated_name}"
     if [ $has_read == true ] && [ ! -f "$read_path_symlink" ]; then
 	ln -s "$filename" "$read_path_symlink"
@@ -140,11 +142,14 @@ better to assume yes and search for it. " yn
 	esac
     done
 
+    # prompt options tacked onto the two relevant options for the find/select
+    # combination used in the below loop: no results, at least one result 
     again="Search again"
     new="Create a new entry"
     to_main="Back to main"
 
-    # this loop will repeat until an appropriate book file is given
+    # this loop will repeat until an appropriate book file is given in some manner.
+    # The user also has the option to return to the main aspect of popinjay via the select
     name_given=false
     while ! $name_given; do
 	if [ $in_system = true ]; then
@@ -156,27 +161,16 @@ better to assume yes and search for it. " yn
 		echo "The query '${query}' didn't turn up any results."
 		select opt in "$again" "$new" "$to_main"; do
 		    if [[ "$opt" == "$again" ]]; then
+			# breaks out of select and goes to the top of the loop
 			break
 		    elif [[ "$opt" == "$new" ]]; then
+			# breaks out of the select and triggers the else of the
+			# parent loop
 			in_system=false
 			break
 		    elif [[ "$opt" == "$to_main" ]]; then
+			# returns to the main popinjay loop
 			return
-		    fi
-		done
-	    elif [ ${#found[*]} = 1 ]; then
-		select f in ${found[*]} "$again" "$new" "$to_main"; do
-		    if [[ "$f" == "$again" ]]; then
-			break
-		    elif [[ "$f" == "$new" ]]; then
-			in_system=false
-			break
-		    elif [[ "$f" == "$to_main" ]]; then
-			return
-		    else
-			filepath=${found}
-			name_given=true
-			break
 		    fi
 		done
 	    else
@@ -188,11 +182,11 @@ better to assume yes and search for it. " yn
 			break
 		    elif [[ "$f" == "$to_main" ]]; then
 			return;
+		    else
+			filepath="$f"
+			name_given=true
+			break
 		    fi
-
-		    filepath="$f"
-		    name_given=true
-		    break
 		done
 	    fi
 	else
@@ -392,7 +386,6 @@ edit_book() {
 		done
 		break
 		;;
-	    
 	    *)
 		echo "Not a viable request"
 		continue
@@ -402,7 +395,7 @@ edit_book() {
 
     # if theres been a change of information, then the filepath is
     # written to
-    if [ "$edited" = true ]; then
+    if [ $edited = true ]; then
 	printf "%b" \
 	       "title              ~ ${fields[0]}\n" \
 	       "author             ~ ${fields[1]}\n" \
@@ -417,12 +410,25 @@ edit_book() {
 
     # if the original path passed to this sub-process does not match
     # the current one, the original is removed.
-    if [ ! "$2" == "$filepath" ]; then
-	rm $2
+    if [[ ! "$2" == "$filepath" ]]; then
+	original_name=$(basename -- "$2")
+	original_name="${original_name%.*}"
+
+	# gets each symlink of the old name and replaces it with a symlink to the
+	# new file name
+	found=$(find $library -name "*${original_name}" -not -path "${all_books}/*")
+	for curr in $found; do
+	    curr_full_dir=$(dirname "$curr")
+	    ln -s "$filepath" "${curr_full_dir}/$bookname"
+	    unlink "$curr"
+	done
+
+	# removes the old file from library/books
+	rm "$2"
     fi
 
-    # if the value of read? is changed, then add or remove
-    # the appropriate symlink as needed
+    # if the value of read? is changed, then add or remove the appropriate
+    # symlink as needed
     if [ $read_status_changed = true ] && [[ "${fields[3]}" == "true" ]]; then
 	ln -s "$filepath" "${read_books}/$bookname"
     elif [ $read_status_changed = true ] && [[ "${fields[3]}" == "false" ]]; then
@@ -431,8 +437,8 @@ edit_book() {
 	done
     fi
 
-    # if the value of owned? is changed, then add or remove
-    # the appropriate symlink as needed
+    # if the value of owned? is changed, then add or remove the appropriate
+    # symlink as needed
     if [ $owned_status_changed == true ] && [[ "${fields[4]}" == "true" ]]; then
 	ln -s "$filepath" "${owned_books}/$bookname"
     elif [ $owned_status_changed == true ] && [[ "${fields[4]}" == "false" ]]; then
