@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # issue: when using the exit feature of enter_book by pressing enter twice
 # enter_read will still grab the most recently edited file and make changes to
 # it.
@@ -8,6 +7,12 @@
 # issue: when switching back and forth between bools for read/owned while in
 # the 'get' menu the code could potentially try to create symlinks that already
 # exist
+
+# issue: no current way to interact with library/to_buy.txt
+
+# issue: when the _another strategy is used to add multiple files of same name,
+# the rm clause at the end of get_book will kill it when this _another file is
+# retrieved by 'get'. Also, the _anothers are added after the file extension.
 
 # absolute path used for logging information
 directory_path=~/git/popinjay
