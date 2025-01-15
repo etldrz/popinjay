@@ -468,17 +468,17 @@ start_bookkeeping() {
 		;;
 	    'help'|'h')
 		printf "%b" \
-		       "Popinjay is an automated assistant for logging "\
-		       "data on books I have read or own. The basis of its "\
-		       "internal structure is that all books stored by the "\
-		       "system are kept in a single folder as individual "\
-		       "txt files. Symbolic links are then used to give "\
-		       "easy-access to pertinate information based on "\
-		       "where the symlink is. For example, a link to "\
-		       "some book located in the 'owned' folder means "\
-		       "that a copy of that book is in my collection. "\
-		       "Likewise, there are folders for whether a book "\
-		       "is read and when it is read, to a granularity of "\
+		       "Popinjay is an automated assistant for logging\n"\
+		       "data on books I have read or own. The basis of its\n"\
+		       "internal structure is that all books stored by the\n"\
+		       "system are kept in a single folder as individual\n"\
+		       "txt files. Symbolic links are then used to give\n"\
+		       "easy-access to pertinate information based on\n"\
+		       "where the symlink is. For example, a link to\n"\
+		       "some book located in the 'owned' folder means\n"\
+		       "that a copy of that book is in my collection.\n"\
+		       "Likewise, there are folders for whether a book\n"\
+		       "is read and when it is read, to a granularity of\n"\
 		       "year/month (beginning in 2025/Jan).\n\n"\
 		       "Primary commands:\n"\
 		       "\t\t'new','n'  :  Enters into the system a book\n"\
