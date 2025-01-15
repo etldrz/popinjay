@@ -376,6 +376,7 @@ edit_book() {
 		       "comments           ~ ${fields[5]}\n" \
 		       "initial_entry_time ~ ${fields[6]}\n" \
 		       "edit_time          ~ $(date)\n"
+		echo "Exit from this subspace via 'back'/'exit'."
 		continue
 		;;
 	    'delete')
@@ -465,12 +466,55 @@ start_bookkeeping() {
 	    'exit')
 		break
 		;;
+	    'help'|'h')
+		printf "%b" \
+		       "Popinjay is an automated assistant for logging "\
+		       "data on books I have read or own. The basis of its "\
+		       "internal structure is that all books stored by the "\
+		       "system are kept in a single folder as individual "\
+		       "txt files. Symbolic links are then used to give "\
+		       "easy-access to pertinate information based on "\
+		       "where the symlink is. For example, a link to "\
+		       "some book located in the 'owned' folder means "\
+		       "that a copy of that book is in my collection. "\
+		       "Likewise, there are folders for whether a book "\
+		       "is read and when it is read, to a granularity of "\
+		       "year/month (beginning in 2025/Jan).\n\n"\
+		       "Primary commands:\n"\
+		       "\t\t'new','n'  :  Enters into the system a book\n"\
+		       "\t\t              which is assumed to be owned.\n"\
+		       "\t\t              The corresponding symlinks will\n"\
+		       "\t\t              be placed into the 'owned' folder\n"\
+		       "\t\t              and the 'read' folder (if read is\n"\
+		       "\t\t              marked as true). Note that no\n"\
+		       "\t\t              symlinks will be placed into time\n"\
+		       "\t\t              folders, for that see the 'read'\n"\
+		       "\t\t              command.\n"\
+		       "\t\t'get','g'  :  Retrieves the data of some book\n"\
+		       "\t\t              based on a search query given by the\n"\
+		       "\t\t              user. This data can be viewed and also\n"\
+		       "\t\t              edited. See the nested 'help' command.\n"\
+		       "\t\t              Note that, as with the 'new' command,\n"\
+		       "\t\t              time-based data will not be added to if\n"\
+		       "\t\t              the read status of a book is changed to\n"\
+		       "\t\t              true from false. However, the converse of\n"\
+		       "\t\t              that decision will delete all symlinks\n"\
+		       "\t\t              corresponding with read folders, time based\n"\
+		       "\t\t              or otherwise.\n"\
+		       "\t\t'read','r' :  Logs a finishedbook into the system and places\n"\
+		       "\t\t              a symlink into a directory corresponding\n"\
+		       "\t\t              to the year/month of entry. This finished\n"\
+		       "\t\t              book can either be new to the system, or one already\n"\
+		       "\t\t              logged by Popinjay.\n"\
+		       "\t\t'exit'     :  Exits out of Popinjay.\n"
+		continue
+		;;
 	    'new'|'n')
 		history -s "$input"
 		enter_book false
 		continue
 		;;
-	    'get')
+	    'get'|'g')
 		history -s "$input"
 		# uses find to get a list of books matching search
 		# query, from which the user can select from if there
