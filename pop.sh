@@ -12,7 +12,7 @@
 
 # issue: when the _another strategy is used to add multiple files of same name,
 # the rm clause at the end of get_book will kill it when this _another file is
-# retrieved by 'get'. Also, the _anothers are added after the file extension.
+# retrieved by 'get'.
 
 # absolute path used for logging information
 directory_path=~/git/popinjay
@@ -77,13 +77,14 @@ enter_book() {
     # the file path combines title and author and replaces
     # all spaces with underscores
     translated_name="${title// /_},${author// /_}"
-    filename="${all_books}/${translated_name}.txt"
-
     # in case of repeated entries (different copies of
     # same book)
-    while [ -f $filename ]; do
+    filename="${all_books}/${translated_name}"
+    while [ -f "${filename}.txt" ]; do
 	filename+=_another
     done
+    filename="${filename}.txt"
+
 
     if [ $1 = true ]; then
 	has_read=true
@@ -293,7 +294,7 @@ edit_book() {
 	# allow for updates.
 	bookname="${fields[0]// /_},${fields[1]// /_}"
 	filepath="${all_books}/${bookname}.txt"
-	read -e -p "($1 > $bookname) " input
+	read -e -p "($1 > ${bookname}) " input
 
 	# allows for editing of the fields for each book. also
 	# includes a help and delete command. each field can be
