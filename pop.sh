@@ -27,7 +27,7 @@ reading_data=${library}/reading_data
 # a set of symbolic links for all books read is stored here
 read_books=${reading_data}/read_books
 
-for dir in $directory_path $library $all_books $owned_books \
+for dir in $library $all_books $owned_books \
 	   $reading_data $read_books; do
     if [ ! -d $dir ]; then mkdir $dir; fi
 done
@@ -45,7 +45,7 @@ enter_book() {
     read -p "title: " title
     read -p "author/editor: " author
     # allows for the user to opt-out of the command
-    if [[ "$title" == "" && "$author" == "" ]]; then
+    if [ "$title" = "" ] && [ "$author" = "" ]; then
 	return
     fi
     read -p "isbn10/13: " isbn
@@ -107,16 +107,16 @@ enter_book() {
     # symlinks are used to log metadata--if a file symlink is in $read_books
     # that means it has been read, and the same holds for it being in $owned_books.
     read_path_symlink="${read_books}/${translated_name}"
-    if [ $has_read == true ] && [ ! -f "$read_path_symlink" ]; then
+    if [ $has_read = true ] && [ ! -f "$read_path_symlink" ]; then
 	ln -s "$filename" "$read_path_symlink"
     fi
     owned_path_symlink="${owned_books}/${translated_name}"
-    if [ $owned == true ] && [ ! -f "$owned_path_symlink" ]; then
+    if [ $owned = true ] && [ ! -f "$owned_path_symlink" ]; then
 	ln -s "$filename" "$owned_path_symlink"
     fi
 
     echo
-    echo "Successfully created an entry for 'library/books/${title// /_},${author// /_}'"
+    echo "Successfully created an entry for '${title// /_},${author// /_}'"
     echo
 }
 
@@ -162,27 +162,27 @@ better to assume yes and search for it. " yn
 	    if [ ${#found[*]} = 0 ]; then
 		echo "The query '${query}' didn't turn up any results."
 		select opt in "$again" "$new" "$to_main"; do
-		    if [[ "$opt" == "$again" ]]; then
+		    if [ "$opt" = "$again" ]; then
 			# breaks out of select and goes to the top of the loop
 			break
-		    elif [[ "$opt" == "$new" ]]; then
+		    elif [ "$opt" = "$new" ]; then
 			# breaks out of the select and triggers the else of the
 			# parent loop
 			in_system=false
 			break
-		    elif [[ "$opt" == "$to_main" ]]; then
+		    elif [ "$opt" = "$to_main" ]; then
 			# returns to the main popinjay loop
 			return
 		    fi
 		done
 	    else
 		select f in ${found[*]} "$again" "$new" "$to_main"; do
-		    if [[ "$f" == "$again" ]]; then
+		    if [ "$f" = "$again" ]; then
 			break
-		    elif [[ "$f" == "$new" ]]; then
+		    elif [ "$f" = "$new" ]; then
 			in_system=false
 			break
-		    elif [[ "$f" == "$to_main" ]]; then
+		    elif [ "$f" = "$to_main" ]; then
 			return;
 		    else
 			filepath="$f"
@@ -208,7 +208,7 @@ better to assume yes and search for it. " yn
     filename=$(basename -- "$filepath")
     filename="${filename%.*}"
 
-    if [[ ! "${fields[3]}" == "true" ]]; then
+    if [ ! "${fields[3]}" = "true" ]; then
 	fields[3]="true"
 	printf "%b" \
 	       "title              ~ ${fields[0]}\n" \
@@ -306,7 +306,7 @@ edit_book() {
 		;;
 	    'title')
 		read -e -i "${fields[0]}" new_title
-		if [[ "$new_title" == "${fields[0]}" ]]; then
+		if [ "$new_title" = "${fields[0]}" ]; then
 		    continue
 		fi
 		fields[0]="$new_title"
@@ -314,7 +314,7 @@ edit_book() {
 		;;
 	    'author')
 		read -e -i "${fields[1]}" new_author
-		if [[ "$new_author" == "${fields[1]}" ]]; then
+		if [ "$new_author" = "${fields[1]}" ]; then
 		    continue
 		fi
 		fields[1]="$new_author"
@@ -322,7 +322,7 @@ edit_book() {
 		;;
 	    'isbn10/13'|'isbn')
 		read -e -i "${fields[2]}" new_isbn
-		if [[ "$new_isbn" == "${fields[2]}" ]]; then
+		if [ "$new_isbn" = "${fields[2]}" ]; then
 		    continue
 		fi
 		fields[2]="$new_isbn"
@@ -335,7 +335,7 @@ edit_book() {
 		    break
 		done
 		
-		if [[ $bool == "${fields[3]}" ]]; then continue; fi
+		if [ $bool = "${fields[3]}" ]; then continue; fi
 
 		read_status_changed=true
 
@@ -349,16 +349,16 @@ edit_book() {
 		    break
 		done
 
-		if [[ "$bool" == "${fields[4]}" ]]; then continue; fi
+		if [ "$bool" = "${fields[4]}" ]; then continue; fi
 
 		owned_status_changed=true
 
 		fields[4]="$bool"
 		edited=true
 		;;
-	    'comments')
+	    'comments'|'comment')
 		read -e -i "${fields[5]}" new_comments
-		if [[ "$new_comments" == "${fields[5]}" ]]; then
+		if [ "$new_comments" = "${fields[5]}" ]; then
 		    continue
 		fi
 		fields[5]="$new_comments"
@@ -413,7 +413,7 @@ edit_book() {
 
     # if the original path passed to this sub-process does not match
     # the current one, the original is removed.
-    if [[ ! "$2" == "$filepath" ]]; then
+    if [ ! "$2" = "$filepath" ]; then
 	original_name=$(basename -- "$2")
 	original_name="${original_name%.*}"
 
@@ -432,9 +432,9 @@ edit_book() {
 
     # if the value of read? is changed, then add or remove the appropriate
     # symlink as needed
-    if [ $read_status_changed = true ] && [[ "${fields[3]}" == "true" ]]; then
+    if [ $read_status_changed = true ] && [ "${fields[3]}" = "true" ]; then
 	ln -s "$filepath" "${read_books}/$bookname"
-    elif [ $read_status_changed = true ] && [[ "${fields[3]}" == "false" ]]; then
+    elif [ $read_status_changed = true ] && [ "${fields[3]}" = "false" ]; then
 	for file in $(find "$reading_data" -name "${bookname}"); do
 	    rm "$file" 
 	done
@@ -442,9 +442,9 @@ edit_book() {
 
     # if the value of owned? is changed, then add or remove the appropriate
     # symlink as needed
-    if [ $owned_status_changed == true ] && [[ "${fields[4]}" == "true" ]]; then
+    if [ $owned_status_changed = true ] && [ "${fields[4]}" = "true" ]; then
 	ln -s "$filepath" "${owned_books}/$bookname"
-    elif [ $owned_status_changed == true ] && [[ "${fields[4]}" == "false" ]]; then
+    elif [ $owned_status_changed = true ] && [ "${fields[4]}" = "false" ]; then
 	rm -f "${owned_books}/$bookname"
     fi
     
@@ -516,19 +516,36 @@ start_bookkeeping() {
 		# uses find to get a list of books matching search
 		# query, from which the user can select from if there
 		# is more than one option.
+
+		    
 		read -p "Enter search query (case sensitive): " to_search
 
 		# blank entry opts out of command
-		if [[ "$to_search" == "" ]]; then
+		if [ "$to_search" = "" ]; then
 		    continue
 		fi
-		
+
 		# this value is passed to find, which returns a list
 		# from which the user can select some result
 		query="*${to_search// /_}*"
 		found=($(find "$all_books" -maxdepth 1 -name "${query}"))
-		if [ ${#found[*]} = 0 ]; then
+		
+		exit_search=false
+		while [ "${#found[*]}" -eq 0 ]; do
 		    echo "Bad search query of '$query'"
+
+		    read -p "Enter search query (case sensitive): " to_search
+
+		    if [ "$to_search" = "" ]; then
+			exit_search=true
+			break
+		    fi
+
+		    query="*${to_search// /_}*"
+		    found=($(find "$all_books" -maxdepth 1 -name "${query}"))
+		done
+
+		if [ $exit_search = true ]; then
 		    continue
 		elif [ ${#found[*]} -gt 1 ]; then
 		    echo "multiple results gotten, select the best match"
