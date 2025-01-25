@@ -32,6 +32,10 @@ for dir in $library $all_books $owned_books \
     if [ ! -d $dir ]; then mkdir $dir; fi
 done
 
+# The deliminator used to seperate fields from values in each book file.
+# Chosen because it is not commonly used in language.
+bookfile_delim="~"
+
 # called when a new book is being put into the system,
 # via either the 'new'or 'read' commands
 enter_book() {
@@ -176,16 +180,26 @@ better to assume yes and search for it. " yn
 		    fi
 		done
 	    else
-		select f in ${found[*]} "$again" "$new" "$to_main"; do
-		    if [ "$f" = "$again" ]; then
+		declare -A title_author
+		for filepath in ${found[*]}; do
+		    fields=()
+		    while read line; do
+    		    	line_split=($( echo $line | tr "$bookfile_delim" "\n" ))
+    		    	fields+=("${line_split[*]:1}")
+		    done < "$filepath"
+		    curr="${fields[0]}, by ${fields[1]}"
+		    title_author["$curr"]="$filepath"
+		done
+		select opt in "${!title_author[@]}" "$again" "$new" "$to_main"; do
+		    if [ "$opt" = "$again" ]; then
 			break
-		    elif [ "$f" = "$new" ]; then
+		    elif [ "$opt" = "$new" ]; then
 			in_system=false
 			break
-		    elif [ "$f" = "$to_main" ]; then
+		    elif [ "$opt" = "$to_main" ]; then
 			return;
 		    else
-			filepath="$f"
+			filepath="${title_author[$opt]}"
 			name_given=true
 			break
 		    fi
@@ -198,12 +212,6 @@ better to assume yes and search for it. " yn
 	    name_given=true
 	fi
     done
-
-    fields=()
-    while read line; do
-	line_split=($( echo $line | tr "~" "\n" ))
-	fields+=("${line_split[*]:1}")
-    done < "$filepath"
 
     filename=$(basename -- "$filepath")
     filename="${filename%.*}"
@@ -275,7 +283,7 @@ edit_book() {
     # retrieves the necessary data
     fields=()
     while read line; do
-	line_split=($( echo $line | tr "~" "\n" ))
+	line_split=($( echo $line | tr "$bookfile_delim" "\n" ))
 	fields+=("${line_split[*]:1}")
     done < $2
 	
@@ -548,9 +556,20 @@ start_bookkeeping() {
 		if [ $exit_search = true ]; then
 		    continue
 		elif [ ${#found[*]} -gt 1 ]; then
+		    declare -A title_author
+		    for filepath in ${found[*]}; do
+			fields=()
+			while read line; do
+    			    line_split=($( echo $line | tr "$bookfile_delim" "\n" ))
+    			    fields+=("${line_split[*]:1}")
+			done < "$filepath"
+			curr="${fields[0]}, by ${fields[1]}"
+			title_author["$curr"]="$filepath"
+		    done
+
 		    echo "multiple results gotten, select the best match"
-		    select f in ${found[*]}; do
-			gotten=$f
+		    select opt in "${!title_author[@]}"; do
+			gotten="${title_author[$opt]}"
 			break
 		    done
 		else
