@@ -102,7 +102,7 @@ enter_book() {
     	   "owned?             ~ ${owned}\n" \
     	   "comments           ~ ${comments}\n" \
     	   "initial_entry_time ~ ${entry_time}\n" \
-    	   "edit_time          ~ ${entry_time}\n" > $filename
+    	   "edit_time          ~ ${entry_time}\n" > "$filename"
 
     # symlinks are used to log metadata--if a file symlink is in $read_books
     # that means it has been read, and the same holds for it being in $owned_books.
@@ -465,7 +465,7 @@ start_bookkeeping() {
 
 	# can either enter in a new book or edit one already-entered
 	case $input in
-	    'exit')
+	    'exit'|'q')
 		break
 		;;
 	    'help'|'h')
