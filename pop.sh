@@ -24,11 +24,13 @@ all_books=${library}/books
 owned_books=${library}/owned_books
 # reading data write path
 reading_data=${library}/reading_data
+# to be cleaned out in regular intervals
+garbage_can=${library}/garbage_can
 # a set of symbolic links for all books read is stored here
 read_books=${reading_data}/read_books
 
 for dir in $library $all_books $owned_books \
-	   $reading_data $read_books; do
+	   $reading_data $read_books $garbage_can; do
     if [ ! -d $dir ]; then mkdir $dir; fi
 done
 
@@ -213,10 +215,16 @@ better to assume yes and search for it. " yn
 	fi
     done
 
+    fields=()
+    while read line; do
+    	line_split=($( echo $line | tr "$bookfile_delim" "\n" ))
+    	fields+=("${line_split[*]:1}")
+    done < "$filepath"
+
     filename=$(basename -- "$filepath")
     filename="${filename%.*}"
 
-    if [ ! "${fields[3]}" = "true" ]; then
+    if [ ! "${fields[3]}" = "true" ] && [ $in_system = true ]; then
 	fields[3]="true"
 	printf "%b" \
 	       "title              ~ ${fields[0]}\n" \
@@ -391,9 +399,9 @@ edit_book() {
 		;;
 	    'delete')
 		# removes all files found in order to also get symbolic links
-		found=$(find $library -name "*${bookname}*")
+		found=$(find $library -name "*${bookname}*" -not -path "${garbage_can}/*")
 		for file in ${found[*]}; do
-		    rm "$file"
+		    mv "$file" "${garbage_can}/$(basename -- "$file")"
 		done
 		break
 		;;
@@ -435,7 +443,7 @@ edit_book() {
 	done
 
 	# removes the old file from library/books
-	rm "$2"
+	mv "$2" "${garbage_can}/$(basename -- "$2")"
     fi
 
     # if the value of read? is changed, then add or remove the appropriate
