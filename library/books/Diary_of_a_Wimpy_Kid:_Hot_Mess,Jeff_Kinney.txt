@@ -1,0 +1,8 @@
+title              ~ Diary of a Wimpy Kid: Hot Mess
+author             ~ Jeff Kinney
+isbn10/13          ~ 78-1-4197-6695-4
+read?              ~ true
+owned?             ~ true
+comments           ~ 
+initial_entry_time ~ Fri Jan 31 01:09:34 PM EST 2025
+edit_time          ~ Fri Jan 31 01:09:34 PM EST 2025

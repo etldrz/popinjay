@@ -21,16 +21,16 @@ library=${directory_path}/library
 # where all actual book data are stored
 all_books=${library}/books
 # a set of symbolic links for all books owned is stored here
-owned_books=${library}/owned_books
+owned_books=${library}/owned
+# a set of symbolic links for all books read is stored here
+read_books=${library}/read
 # reading data write path
 reading_data=${library}/reading_data
 # to be cleaned out in regular intervals
-garbage_can=${library}/garbage_can
-# a set of symbolic links for all books read is stored here
-read_books=${reading_data}/read_books
+trash=${library}/trash
 
 for dir in $library $all_books $owned_books \
-	   $reading_data $read_books $garbage_can; do
+	   $reading_data $read_books $trash; do
     if [ ! -d $dir ]; then mkdir $dir; fi
 done
 
@@ -91,7 +91,6 @@ enter_book() {
     done
     filename="${filename}.txt"
 
-
     if [ $1 = true ]; then
 	has_read=true
 	owned=$book_status
@@ -110,20 +109,21 @@ enter_book() {
     	   "initial_entry_time ~ ${entry_time}\n" \
     	   "edit_time          ~ ${entry_time}\n" > "$filename"
 
+    echo
+    echo "Created an entry for '${title// /_},${author// /_}'"
+
     # symlinks are used to log metadata--if a file symlink is in $read_books
     # that means it has been read, and the same holds for it being in $owned_books.
     read_path_symlink="${read_books}/${translated_name}"
     if [ $has_read = true ] && [ ! -f "$read_path_symlink" ]; then
 	ln -s "$filename" "$read_path_symlink"
+	echo "Shelved as read"
     fi
     owned_path_symlink="${owned_books}/${translated_name}"
     if [ $owned = true ] && [ ! -f "$owned_path_symlink" ]; then
 	ln -s "$filename" "$owned_path_symlink"
+	echo "Shelved as owned"
     fi
-
-    echo
-    echo "Successfully created an entry for '${title// /_},${author// /_}'"
-    echo
 }
 
 
@@ -271,7 +271,7 @@ better to assume yes and search for it. " yn
     ln -s "$filepath" "$time_read_symlink"
 
     echo
-    echo "$filename has been successfully logged in 'library/reading_data/${year}/${month}'"
+    echo "$filename has been successfully logged for ${year}/${month}"
 }
 
 edit_book() {
@@ -399,9 +399,9 @@ edit_book() {
 		;;
 	    'delete')
 		# removes all files found in order to also get symbolic links
-		found=$(find $library -name "*${bookname}*" -not -path "${garbage_can}/*")
+		found=$(find $library -name "*${bookname}*" -not -path "${trash}/*")
 		for file in ${found[*]}; do
-		    mv "$file" "${garbage_can}/$(basename -- "$file")"
+		    mv "$file" "${trash}/$(basename -- "$file")"
 		done
 		break
 		;;
@@ -443,7 +443,7 @@ edit_book() {
 	done
 
 	# removes the old file from library/books
-	mv "$2" "${garbage_can}/$(basename -- "$2")"
+	mv "$2" "${trash}/$(basename -- "$2")"
     fi
 
     # if the value of read? is changed, then add or remove the appropriate
