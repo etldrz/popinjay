@@ -159,4 +159,4 @@ done
 
 ln -s "$filepath" "$time_read_symlink"
 
-echo "$filename has been successfully logged for $year/$month"
+echo "Shelved for $year/$month"
